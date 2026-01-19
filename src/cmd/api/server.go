@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"restapi/src/internal/api/middlewares"
 	"strings"
 )
 
@@ -28,7 +29,7 @@ func main() {
 
 	server := &http.Server{
 		Addr:      port,
-		Handler:   mux,
+		Handler:   middlewares.SecurityHeaders(mux),
 		TLSConfig: tlsConfig,
 	}
 
