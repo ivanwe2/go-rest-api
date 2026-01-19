@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func main() {
@@ -14,28 +15,7 @@ func main() {
 		fmt.Println("Hello root route")
 	})
 
-	http.HandleFunc("/teachers", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodGet {
-			fmt.Println("Getting teachers")
-			return
-		}
-
-		switch r.Method {
-		case http.MethodGet:
-			fmt.Println("Getting teachers")
-		case http.MethodPost:
-			fmt.Println("Getting teachers")
-		case http.MethodPut:
-			fmt.Println("Getting teachers")
-		case http.MethodDelete:
-			fmt.Println("Getting teachers")
-		default:
-			fmt.Println("Unknown http method")
-		}
-
-		w.Write([]byte("Hello teachers Route"))
-		fmt.Println("Hello teachers route")
-	})
+	http.HandleFunc("/teachers", teachersHandler)
 
 	http.HandleFunc("/students", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Hello students Route"))
@@ -52,4 +32,36 @@ func main() {
 	if err != nil {
 		log.Fatalln("Error starting server: ", err)
 	}
+}
+
+func teachersHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		// Path params
+		fmt.Println(r.URL.Path)
+		path := strings.TrimPrefix(r.URL.Path, "/teachers/")
+		userId := strings.TrimSuffix(path, "/")
+
+		fmt.Println("The id is: ", userId)
+
+		// QUery params
+		fmt.Println(r.URL.Query())
+		query := r.URL.Query()
+		sortby := query.Get("sortby")
+
+		fmt.Println("The query params is: ", sortby)
+
+		fmt.Println("Getting teachers")
+	case http.MethodPost:
+		fmt.Println("Getting teachers")
+	case http.MethodPut:
+		fmt.Println("Getting teachers")
+	case http.MethodDelete:
+		fmt.Println("Getting teachers")
+	default:
+		fmt.Println("Unknown http method")
+	}
+
+	w.Write([]byte("Hello teachers Route"))
+	fmt.Println("Hello teachers route")
 }
