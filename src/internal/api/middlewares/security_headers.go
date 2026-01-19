@@ -11,6 +11,7 @@ func SecurityHeaders(next http.Handler) http.Handler {
 		w.Header().Set("Strict Transport Security", "max-age=63072000;includeSubdomains;preload")
 		w.Header().Set("Content-Security-Policy", "default-src 'self'")
 		w.Header().Set("Referred-Policy", "no-referrer")
+		w.Header().Set("X-Powered-By", "express")
 
 		next.ServeHTTP(w, r)
 	})
