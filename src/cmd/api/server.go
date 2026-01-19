@@ -16,17 +16,19 @@ func main() {
 		MinVersion: tls.VersionTLS12,
 	}
 
-	http.HandleFunc("/", rootHandler)
+	mux := http.NewServeMux()
 
-	http.HandleFunc("/teachers", teachersHandler)
+	mux.HandleFunc("/", rootHandler)
 
-	http.HandleFunc("/students", studentsHandler)
+	mux.HandleFunc("/teachers", teachersHandler)
 
-	http.HandleFunc("/execs", execsHandler)
+	mux.HandleFunc("/students", studentsHandler)
+
+	mux.HandleFunc("/execs", execsHandler)
 
 	server := &http.Server{
 		Addr:      port,
-		Handler:   nil,
+		Handler:   mux,
 		TLSConfig: tlsConfig,
 	}
 
