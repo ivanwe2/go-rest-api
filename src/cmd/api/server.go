@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,29 +10,36 @@ import (
 
 func main() {
 	port := ":5000"
+	cert := "cert.pem"
+	key := "key.pem"
+	tlsConfig := &tls.Config{
+		MinVersion: tls.VersionTLS12,
+	}
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello Root Route"))
-		fmt.Println("Hello root route")
-	})
+	http.HandleFunc("/", rootHandler)
 
 	http.HandleFunc("/teachers", teachersHandler)
 
-	http.HandleFunc("/students", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello students Route"))
-		fmt.Println("Hello students route")
-	})
+	http.HandleFunc("/students", studentsHandler)
 
-	http.HandleFunc("/execs", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello execs Route"))
-		fmt.Println("Hello execs route")
-	})
+	http.HandleFunc("/execs", execsHandler)
+
+	server := &http.Server{
+		Addr:      port,
+		Handler:   nil,
+		TLSConfig: tlsConfig,
+	}
 
 	fmt.Println("Server is running on port: ", port)
-	err := http.ListenAndServe(port, nil)
+	err := server.ListenAndServeTLS(cert, key)
 	if err != nil {
 		log.Fatalln("Error starting server: ", err)
 	}
+}
+
+func rootHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Hello Root Route"))
+	fmt.Println("Hello root route")
 }
 
 func teachersHandler(w http.ResponseWriter, r *http.Request) {
@@ -61,7 +69,62 @@ func teachersHandler(w http.ResponseWriter, r *http.Request) {
 	default:
 		fmt.Println("Unknown http method")
 	}
+}
 
-	w.Write([]byte("Hello teachers Route"))
-	fmt.Println("Hello teachers route")
+func studentsHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		// Path params
+		fmt.Println(r.URL.Path)
+		path := strings.TrimPrefix(r.URL.Path, "/students/")
+		userId := strings.TrimSuffix(path, "/")
+
+		fmt.Println("The id is: ", userId)
+
+		// QUery params
+		fmt.Println(r.URL.Query())
+		query := r.URL.Query()
+		sortby := query.Get("sortby")
+
+		fmt.Println("The query params is: ", sortby)
+
+		fmt.Println("Getting students")
+	case http.MethodPost:
+		fmt.Println("Getting students")
+	case http.MethodPut:
+		fmt.Println("Getting students")
+	case http.MethodDelete:
+		fmt.Println("Getting students")
+	default:
+		fmt.Println("Unknown http method")
+	}
+}
+
+func execsHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		// Path params
+		fmt.Println(r.URL.Path)
+		path := strings.TrimPrefix(r.URL.Path, "/execs/")
+		userId := strings.TrimSuffix(path, "/")
+
+		fmt.Println("The id is: ", userId)
+
+		// QUery params
+		fmt.Println(r.URL.Query())
+		query := r.URL.Query()
+		sortby := query.Get("sortby")
+
+		fmt.Println("The query params is: ", sortby)
+
+		fmt.Println("Getting execs")
+	case http.MethodPost:
+		fmt.Println("Getting execs")
+	case http.MethodPut:
+		fmt.Println("Getting teachexecsers")
+	case http.MethodDelete:
+		fmt.Println("Getting teacexecshers")
+	default:
+		fmt.Println("Unknown http method")
+	}
 }
