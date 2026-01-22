@@ -29,7 +29,7 @@ func main() {
 
 	server := &http.Server{
 		Addr:      port,
-		Handler:   middlewares.SecurityHeaders(mux),
+		Handler:   middlewares.ResponseTimeMiddleware(middlewares.Cors(middlewares.SecurityHeaders(mux))),
 		TLSConfig: tlsConfig,
 	}
 
