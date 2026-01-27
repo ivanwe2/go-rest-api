@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"restapi/src/internal/api/middlewares"
 	"strings"
+	"time"
 )
 
 func main() {
@@ -27,9 +28,11 @@ func main() {
 
 	mux.HandleFunc("/execs", execsHandler)
 
+	rl := middlewares.NewRateLimiter(5, time.Minute)
+
 	server := &http.Server{
 		Addr:      port,
-		Handler:   middlewares.Compression(middlewares.ResponseTimeMiddleware(middlewares.Cors(middlewares.SecurityHeaders(mux)))),
+		Handler:   rl.Middleware(middlewares.Compression(middlewares.ResponseTimeMiddleware(middlewares.Cors(middlewares.SecurityHeaders(mux))))),
 		TLSConfig: tlsConfig,
 	}
 
