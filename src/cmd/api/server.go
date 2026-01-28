@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"restapi/src/internal/api/middlewares"
 	"strings"
-	"time"
 )
 
 func main() {
@@ -28,17 +27,28 @@ func main() {
 
 	mux.HandleFunc("/execs", execsHandler)
 
-	rl := middlewares.NewRateLimiter(5, time.Minute)
-	hppOptions := middlewares.HPPOptions{
-		CheckQuery:                  true,
-		CheckBody:                   true,
-		CheckBodyOnlyForContentType: "application/x-www-form-urlencoded",
-		Whitelist:                   []string{"sortBy", "sortOrder", "name", "age", "class"},
-	}
+	// rl := middlewares.NewRateLimiter(5, time.Minute)
+	// hppOptions := middlewares.HPPOptions{
+	// 	CheckQuery:                  true,
+	// 	CheckBody:                   true,
+	// 	CheckBodyOnlyForContentType: "application/x-www-form-urlencoded",
+	// 	Whitelist:                   []string{"sortBy", "sortOrder", "name", "age", "class"},
+	// }
+	// secureMux := applyMiddleware(
+	// 	mux,
+	// 	middlewares.Hpp(hppOptions),
+	// 	middlewares.Compression,
+	// 	middlewares.SecurityHeaders,
+	// 	middlewares.ResponseTimeMiddleware,
+	// 	rl.Middleware,
+	// 	middlewares.Cors,
+	// )
+
+	secureMux := middlewares.SecurityHeaders(mux)
 
 	server := &http.Server{
 		Addr:      port,
-		Handler:   middlewares.Hpp(hppOptions)(rl.Middleware(middlewares.Compression(middlewares.ResponseTimeMiddleware(middlewares.Cors(middlewares.SecurityHeaders(mux)))))),
+		Handler:   secureMux,
 		TLSConfig: tlsConfig,
 	}
 
@@ -140,3 +150,12 @@ func execsHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Unknown http method")
 	}
 }
+
+// type Middleware func(http.Handler) http.Handler
+
+// func applyMiddleware(handler http.Handler, middlewares ...Middleware) http.Handler {
+// 	for _, middleware := range middlewares {
+// 		handler = middleware(handler)
+// 	}
+// 	return handler
+// }
