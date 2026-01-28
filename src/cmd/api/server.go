@@ -29,10 +29,16 @@ func main() {
 	mux.HandleFunc("/execs", execsHandler)
 
 	rl := middlewares.NewRateLimiter(5, time.Minute)
+	hppOptions := middlewares.HPPOptions{
+		CheckQuery:                  true,
+		CheckBody:                   true,
+		CheckBodyOnlyForContentType: "application/x-www-form-urlencoded",
+		Whitelist:                   []string{"sortBy", "sortOrder", "name", "age", "class"},
+	}
 
 	server := &http.Server{
 		Addr:      port,
-		Handler:   rl.Middleware(middlewares.Compression(middlewares.ResponseTimeMiddleware(middlewares.Cors(middlewares.SecurityHeaders(mux))))),
+		Handler:   middlewares.Hpp(hppOptions)(rl.Middleware(middlewares.Compression(middlewares.ResponseTimeMiddleware(middlewares.Cors(middlewares.SecurityHeaders(mux)))))),
 		TLSConfig: tlsConfig,
 	}
 
